@@ -1,146 +1,156 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useContent } from '../context/ContentContext'
 
+/** File lives in /public, so it is served from the site root. */
+const HERO_VIDEO_SRC = '/robotminds-hero-1.mp4'
+
 export default function Hero() {
-  const { get } = useContent()
+    const { get } = useContent()
+    const videoRef = useRef<HTMLVideoElement>(null)
 
-  return (
-      <section className="relative overflow-hidden bg-white">
+    // Respect "prefers-reduced-motion": hold on the poster frame instead of looping video.
+    useEffect(() => {
+        const video = videoRef.current
+        if (!video) return
 
-        {/* ── Hero image: very faint texture in background ── */}
-        <img
-            src={get('hero.image')}
-            alt="Robot Minds humanoid robot in a dark lab"
-            className="absolute inset-0 h-full w-full object-cover opacity-[0.04] mix-blend-luminosity"
-        />
+        const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+        const apply = () => {
+            if (query.matches) video.pause()
+            else void video.play().catch(() => {})
+        }
 
-        {/* ── Decorative background layer ── */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Large primary orb — top-left */}
-          <div
-              className="absolute -top-48 -left-48 h-[640px] w-[640px] rounded-full blur-[120px]"
-              style={{ background: 'radial-gradient(circle, rgba(71,30,255,0.18) 0%, rgba(71,30,255,0) 70%)' }}
-          />
-          {/* Secondary orb — top-right */}
-          <div
-              className="absolute -top-24 -right-32 h-[480px] w-[480px] rounded-full blur-[100px]"
-              style={{ background: 'radial-gradient(circle, rgba(157,60,207,0.14) 0%, rgba(157,60,207,0) 70%)' }}
-          />
-          {/* Soft base orb — bottom center */}
-          <div
-              className="absolute -bottom-20 left-1/2 h-[320px] w-[700px] -translate-x-1/2 rounded-full blur-[90px]"
-              style={{ background: 'radial-gradient(ellipse, rgba(71,30,255,0.08) 0%, rgba(71,30,255,0) 70%)' }}
-          />
-          {/* Subtle grid mesh */}
-          <div
-              className="absolute inset-0 opacity-[0.025]"
-              style={{
-                backgroundImage:
-                    'linear-gradient(rgba(71,30,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(71,30,255,1) 1px, transparent 1px)',
-                backgroundSize: '64px 64px',
-              }}
-          />
-        </div>
+        apply()
+        query.addEventListener('change', apply)
+        return () => query.removeEventListener('change', apply)
+    }, [])
 
-        {/* ── Bottom fade: light hero → dark next section ── */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent to-[#05060a]" />
+    return (
+        <section className="relative flex min-h-svh w-full flex-col overflow-hidden bg-[#05060a]">
+            {/* ── 1. Full-bleed background video ── */}
+            <video
+                ref={videoRef}
+                className="absolute inset-0 h-full w-full object-cover"
+                src={HERO_VIDEO_SRC}
+                poster={get('hero.image')}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+                tabIndex={-1}
+            />
 
-        {/* ── Main content ── */}
-        <div className="relative mx-auto max-w-6xl px-6 pt-24 pb-32">
+            {/* ── 2. Overlays (readability) ── */}
+            {/* Flat scrim: keeps text legible over any frame */}
 
-          {/* Badge */}
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#471EFF]/20 bg-[#471EFF]/6 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#471EFF]">
-            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#471EFF]" />
-            {get('hero.badge')}
-          </p>
+            {/*<div className="absolute inset-0 bg-black/5" aria-hidden="true" />*/}
 
-          {/* Headline */}
-          <h1 className="max-w-xl text-6xl font-semibold leading-[1.05] text-gray-900">
-            {get('hero.titleLine1')}
-            <br />
-            <span
-                className="bg-clip-text text-transparent"
-                style={{ backgroundImage: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)' }}
-            >
+            {/* Vertical gradient: darker at top (nav) and bottom (text) */}
+            <div
+                className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-black/90"
+                aria-hidden="true"
+            />
+            {/* Blend the hero's bottom edge into the next section */}
+            <div
+                className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#05060a] to-transparent"
+                aria-hidden="true"
+            />
+
+            {/* ── 3. Content: horizontally centered, anchored to the bottom ── */}
+            <div className="relative z-10 mt-auto flex w-full flex-col items-center px-6 pb-12 pt-28 text-center sm:pb-16 sm:pt-32">
+                {/* Headline */}
+                <h1 className="max-w-4xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.55)] sm:text-5xl lg:text-6xl">
+                    {get('hero.titleLine1')}
+                    <br />
+                    <span
+                        className="bg-clip-text text-transparent"
+                        style={{ backgroundImage: 'linear-gradient(135deg, #8B7BFF 0%, #C77DFF 100%)' }}
+                    >
             {get('hero.titleLine2')}
           </span>
-          </h1>
+                </h1>
 
-          {/* Subtitle */}
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-500">
-            {get('hero.subtitle')}
-          </p>
+                {/* Subtitle */}
+                <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/75 drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)] sm:text-lg">
+                    {get('hero.subtitle')}
+                </p>
 
-          {/* CTA buttons */}
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            {/* Primary CTA */}
-            <a
-                href="#reserve"
-                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full px-7 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl"
-                style={{
-                  background: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)',
-                  boxShadow: '0 8px 24px rgba(71,30,255,0.30)',
-                }}
-                onMouseEnter={e => {
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 12px 32px rgba(71,30,255,0.45)'
-                }}
-                onMouseLeave={e => {
-                  ;(e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(71,30,255,0.30)'
-                }}
-            >
-              {/* Shimmer on hover */}
-              <span className="absolute inset-0 translate-x-[-110%] skew-x-[-20deg] bg-white/20 transition-transform duration-700 group-hover:translate-x-[110%]" />
-              {get('hero.cta1')}
-            </a>
+                {/* CTAs */}
+                <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
 
-            {/* Secondary CTA — fleet */}
-            <a
-                href="#fleet"
-                className="inline-flex items-center justify-center rounded-full border-2 border-[#471EFF]/25 bg-white px-7 py-3 text-sm font-semibold text-[#471EFF] shadow-sm transition-all duration-300 hover:border-[#471EFF]/60 hover:bg-[#471EFF]/5 hover:shadow-md"
-            >
-              {get('hero.cta2')}
-            </a>
+                    {/* Primary */}
+                    <a
+                        href="#reserve"
+                        className="group relative inline-flex min-h-[48px] items-center justify-center overflow-hidden rounded-full px-8 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
+                        style={{
+                            background: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)',
+                            boxShadow: '0 8px 24px rgba(71,30,255,0.40)',
+                        }}
+                        onMouseEnter={e => {
+                            ;(e.currentTarget as HTMLElement).style.boxShadow = '0 12px 34px rgba(71,30,255,0.55)'
+                        }}
+                        onMouseLeave={e => {
+                            ;(e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(71,30,255,0.40)'
+                        }}
+                    >
+                        <span className="absolute inset-0 translate-x-[-110%] skew-x-[-20deg] bg-white/20 transition-transform duration-700 group-hover:translate-x-[110%]" />
+                        <span className="relative">{get('hero.cta1')}</span>
+                    </a>
 
-            {/* Tertiary CTA — About */}
-            <Link
-                to="/about"
-                className="inline-flex items-center justify-center rounded-full border-2 border-gray-200 bg-white px-7 py-3 text-sm font-semibold text-gray-500 shadow-sm transition-all duration-300 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 hover:shadow-md"
-            >
-              About
-            </Link>
-          </div>
+                    {/* Secondary — glassmorphism so it reads on any frame */}
+                    <a
+                        href="#fleet"
+                        className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/20"
+                    >
+                        {get('hero.cta2')}
+                    </a>
 
-          {/* Stats */}
-          <div className="mt-20 grid max-w-lg grid-cols-3 gap-8 border-t border-gray-100 pt-8">
-            <div>
-              <div
-                  className="text-3xl font-semibold bg-clip-text text-transparent"
-                  style={{ backgroundImage: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)' }}
-              >
-                {get('hero.stat1Value')}
-              </div>
-              <div className="mt-1 text-xs text-gray-400">{get('hero.stat1Label')}</div>
+                    {/* Tertiary — quiet text link */}
+                    <Link
+                        to="/about"
+                        className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold text-white/70 underline-offset-4 transition-colors duration-300 hover:text-white hover:underline"
+                    >
+                        About
+                        <span aria-hidden="true">→</span>
+                    </Link>
+                </div>
+
+                {/* Stats */}
+                <dl className="mt-14 grid w-full max-w-md grid-cols-3 gap-6 border-t border-white/15 pt-6 sm:mt-16">
+                    <div className="text-center">
+                        <dt className="sr-only">{get('hero.stat1Label')}</dt>
+                        <dd
+                            className="bg-clip-text text-2xl font-semibold text-transparent sm:text-3xl"
+                            style={{ backgroundImage: 'linear-gradient(135deg, #8B7BFF 0%, #C77DFF 100%)' }}
+                        >
+                            {get('hero.stat1Value')}
+                        </dd>
+                        <dd className="mt-1 text-[11px] text-white/50 sm:text-xs">{get('hero.stat1Label')}</dd>
+                    </div>
+                    <div className="text-center">
+                        <dt className="sr-only">{get('hero.stat2Label')}</dt>
+                        <dd
+                            className="bg-clip-text text-2xl font-semibold text-transparent sm:text-3xl"
+                            style={{ backgroundImage: 'linear-gradient(135deg, #8B7BFF 0%, #C77DFF 100%)' }}
+                        >
+                            {get('hero.stat2Value')}
+                        </dd>
+                        <dd className="mt-1 text-[11px] text-white/50 sm:text-xs">{get('hero.stat2Label')}</dd>
+                    </div>
+                    <div className="text-center">
+                        <dt className="sr-only">{get('hero.stat3Label')}</dt>
+                        <dd
+                            className="bg-clip-text text-2xl font-semibold text-transparent sm:text-3xl"
+                            style={{ backgroundImage: 'linear-gradient(135deg, #8B7BFF 0%, #C77DFF 100%)' }}
+                        >
+                            {get('hero.stat3Value')}
+                        </dd>
+                        <dd className="mt-1 text-[11px] text-white/50 sm:text-xs">{get('hero.stat3Label')}</dd>
+                    </div>
+                </dl>
             </div>
-            <div>
-              <div
-                  className="text-3xl font-semibold bg-clip-text text-transparent"
-                  style={{ backgroundImage: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)' }}
-              >
-                {get('hero.stat2Value')}
-              </div>
-              <div className="mt-1 text-xs text-gray-400">{get('hero.stat2Label')}</div>
-            </div>
-            <div>
-              <div
-                  className="text-3xl font-semibold bg-clip-text text-transparent"
-                  style={{ backgroundImage: 'linear-gradient(135deg, #471EFF 0%, #9D3CCF 100%)' }}
-              >
-                {get('hero.stat3Value')}
-              </div>
-              <div className="mt-1 text-xs text-gray-400">{get('hero.stat3Label')}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-  )
+        </section>
+    )
 }

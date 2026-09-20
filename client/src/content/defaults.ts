@@ -1,4 +1,3 @@
-import heroImage from '../assets/hero-robot.jpg'
 import atlas from '../assets/robot-atlas.jpg'
 import titan from '../assets/robot-titan.jpg'
 import nomad from '../assets/robot-nomad.jpg'
@@ -13,14 +12,9 @@ import brainImage from '../assets/brain.jpg'
  * "delete the override".
  */
 export const CONTENT_DEFAULTS: Record<string, string> = {
-  'hero.badge': 'Now in early access',
-  'hero.titleLine1': 'Robot',
-  'hero.titleLine2': 'Minds',
-  'hero.subtitle':
-      'Intelligent humanoid robots for the future — machines that learn, adapt, and work alongside you.',
-  // 'hero.image': heroImage,
-  // 'hero.cta1': 'Discover Robot Mind',
-  // 'hero.cta2': 'See the fleet',
+   // 'hero.image': heroImage,
+  'hero.cta1': 'Request a Demo',
+   'hero.cta2': 'Discover Solutions',
   // 'hero.stat1Value': '3M+',
   // 'hero.stat1Label': 'Hours operated',
   // 'hero.stat2Value': '40+',
