@@ -13,11 +13,11 @@ import brainImage from '../assets/brain.jpg'
  * "delete the override".
  */
 export const CONTENT_DEFAULTS: Record<string, string> = {
-  'hero.badge': 'Now in early access',
-  'hero.titleLine1': 'Robot',
-  'hero.titleLine2': 'Minds',
-  'hero.subtitle':
-      'Intelligent humanoid robots for the future — machines that learn, adapt, and work alongside you.',
+  // 'hero.badge': 'Now in early access',
+  // 'hero.titleLine1': 'Robot',
+  // 'hero.titleLine2': 'Minds',
+  // 'hero.subtitle':
+  //     'Intelligent humanoid robots for the future — machines that learn, adapt, and work alongside you.',
   // 'hero.image': heroImage,
   // 'hero.cta1': 'Discover Robot Mind',
   // 'hero.cta2': 'See the fleet',

@@ -17,8 +17,10 @@ import java.util.stream.Collectors;
 @Service
 public class SiteContentService {
 
-    private static final List<String> ALLOWED_EXTENSIONS = List.of("jpg", "jpeg", "png", "webp", "gif", "svg");
-    private static final long MAX_FILE_SIZE_BYTES = 8L * 1024 * 1024; // 8MB
+    private static final List<String> ALLOWED_IMAGE_EXTENSIONS = List.of("jpg", "jpeg", "png", "webp", "gif", "svg");
+    private static final List<String> ALLOWED_VIDEO_EXTENSIONS = List.of("mp4", "webm", "ogg", "mov");
+    private static final long MAX_IMAGE_SIZE_BYTES = 8L * 1024 * 1024; // 8MB
+    private static final long MAX_VIDEO_SIZE_BYTES = 50L * 1024 * 1024; // 50MB
 
     private final SiteContentRepository repository;
     private final Path uploadDir;
@@ -59,20 +61,39 @@ public class SiteContentService {
      * served from (see WebConfig, which maps /uploads/** to this directory).
      */
     public String saveImage(MultipartFile file) {
+        return saveMedia(file, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE_BYTES, "image", "8MB");
+    }
+
+    public String saveVideo(MultipartFile file) {
+        String contentType = file == null ? null : file.getContentType();
+        if (contentType == null || !contentType.startsWith("video/")) {
+            throw new IllegalArgumentException("Unsupported video type. Please upload a video file.");
+        }
+        return saveMedia(file, ALLOWED_VIDEO_EXTENSIONS, MAX_VIDEO_SIZE_BYTES, "video", "50MB");
+    }
+
+    private String saveMedia(
+            MultipartFile file,
+            List<String> allowedExtensions,
+            long maxSizeBytes,
+            String mediaType,
+            String maxSizeLabel
+    ) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("No file uploaded.");
         }
-        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new IllegalArgumentException("File is too large (max 8MB).");
+        if (file.getSize() > maxSizeBytes) {
+            throw new IllegalArgumentException("File is too large (max " + maxSizeLabel + ").");
         }
         String originalName = file.getOriginalFilename() == null ? "" : file.getOriginalFilename();
         String extension = originalName.contains(".")
                 ? originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase()
                 : "";
-        if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("Unsupported image type. Allowed: " + ALLOWED_EXTENSIONS);
+        if (!allowedExtensions.contains(extension)) {
+            throw new IllegalArgumentException(
+                    "Unsupported " + mediaType + " type. Allowed: " + allowedExtensions
+            );
         }
-
         String filename = UUID.randomUUID() + "." + extension;
         try {
             Files.copy(file.getInputStream(), uploadDir.resolve(filename));

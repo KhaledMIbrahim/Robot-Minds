@@ -5,7 +5,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Serves admin-uploaded images from the ./uploads directory at /uploads/**.
+ * Serves admin-uploaded media from the ./uploads directory at /uploads/**.
  * Files live outside the classpath (unlike src/main/resources/static) so
  * uploads persist across rebuilds and don't get bundled into the jar.
  */

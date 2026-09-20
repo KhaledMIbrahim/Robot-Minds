@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Serves the editable home-page content. Reading is public (the landing page
- * needs it for everyone); writing and image uploads are restricted to
+ * needs it for everyone); writing and media uploads are restricted to
  * ROLE_ADMIN by SecurityConfig's "/api/admin/**" rule.
  */
 @RestController
@@ -43,6 +43,16 @@ public class SiteContentController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             String url = service.saveImage(file);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/admin/content/upload-video")
+    public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file) {
+        try {
+            String url = service.saveVideo(file);
             return ResponseEntity.ok(Map.of("url", url));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));

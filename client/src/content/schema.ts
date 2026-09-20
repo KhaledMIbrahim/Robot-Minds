@@ -1,7 +1,7 @@
 export type ContentField = {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'image'
+  type: 'text' | 'textarea' | 'image' | 'video'
 }
 
 export type ContentGroup = {
@@ -25,6 +25,7 @@ export const CONTENT_SCHEMA: ContentGroup[] = [
       { key: 'hero.titleLine2', label: 'Title — line 2', type: 'text' },
       { key: 'hero.subtitle', label: 'Subtitle', type: 'textarea' },
       { key: 'hero.image', label: 'Background image', type: 'image' },
+      { key: 'hero.video', label: 'Background video', type: 'video' },
       { key: 'hero.cta1', label: 'Primary button label', type: 'text' },
       { key: 'hero.cta2', label: 'Secondary button label', type: 'text' },
       { key: 'hero.stat1Value', label: 'Stat 1 value', type: 'text' },
