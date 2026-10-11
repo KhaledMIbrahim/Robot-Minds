@@ -4,7 +4,7 @@ import { useContent } from '../context/ContentContext'
 
 /** File lives in /public, so it is served from the site root. */
 // const HERO_VIDEO_SRC = '/robotminds-hero-1.mp4'
-const HERO_VIDEO_SRC = '/clean_video.mp4'
+ const HERO_VIDEO_SRC = '/clean_video.mp4'
 
 export default function Hero() {
     const { get } = useContent()
